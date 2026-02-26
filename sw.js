@@ -1,31 +1,42 @@
-const CACHE = "plaka-pwa-v1";
-const ASSETS = [
+const CACHE_NAME = "plaka-sorgu-v1";
+
+const FILES_TO_CACHE = [
   "./",
   "./index.html",
-  "./data.csv",
   "./manifest.json"
 ];
 
-self.addEventListener("install", (e) => {
-  e.waitUntil(
-    caches.open(CACHE).then((c) => c.addAll(ASSETS))
+// Kurulum
+self.addEventListener("install", event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(FILES_TO_CACHE))
   );
+  self.skipWaiting();
 });
 
-self.addEventListener("activate", (e) => {
-  e.waitUntil(
+// Aktif olma
+self.addEventListener("activate", event => {
+  event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
-        keys.map(k => k !== CACHE ? caches.delete(k) : null)
+        keys.map(key => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+        })
       )
     )
   );
+  self.clients.claim();
 });
 
-self.addEventListener("fetch", (e) => {
-  e.respondWith(
-    caches.match(e.request).then((cached) =>
-      cached || fetch(e.request)
-    )
+// Fetch (offline desteği)
+self.addEventListener("fetch", event => {
+  event.respondWith(
+    caches.match(event.request)
+      .then(response => {
+        return response || fetch(event.request);
+      })
   );
 });
