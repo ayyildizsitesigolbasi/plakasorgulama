@@ -1,4 +1,4 @@
-const CACHE_NAME = "plaka-sorgu-v1";
+const CACHE_NAME = "plakasorgulama-v1";
 
 const FILES_TO_CACHE = [
   "./",
